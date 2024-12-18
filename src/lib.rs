@@ -12,18 +12,9 @@ pub trait WechatType {
     async fn refresh_access_token(
         &self,
         appid: String,
-        refresh_token: String,
     ) -> Result<AccessTokenResponse, Box<dyn Error>>;
-    async fn check_access_token(
-        &self,
-        openid: String,
-        access_token: String,
-    ) -> Result<AuthResponse, Box<dyn Error>>;
-    async fn get_user_info(
-        &self,
-        openid: String,
-        access_token: String,
-    ) -> Result<UserInfoResponse, Box<dyn Error>>;
+    async fn check_access_token(&self, openid: String) -> Result<AuthResponse, Box<dyn Error>>;
+    async fn get_user_info(&self, openid: String) -> Result<UserInfoResponse, Box<dyn Error>>;
 }
 
 pub struct Wechat<T: WechatType> {
@@ -49,28 +40,15 @@ impl<T: WechatType> Wechat<T> {
     pub async fn refresh_access_token(
         &self,
         appid: String,
-        refresh_token: String,
     ) -> Result<AccessTokenResponse, Box<dyn Error>> {
-        self.wechat_type
-            .refresh_access_token(appid, refresh_token)
-            .await
+        self.wechat_type.refresh_access_token(appid).await
     }
 
-    pub async fn check_access_token(
-        &self,
-        openid: String,
-        access_token: String,
-    ) -> Result<AuthResponse, Box<dyn Error>> {
-        self.wechat_type
-            .check_access_token(openid, access_token)
-            .await
+    pub async fn check_access_token(&self, openid: String) -> Result<AuthResponse, Box<dyn Error>> {
+        self.wechat_type.check_access_token(openid).await
     }
 
-    pub async fn get_user_info(
-        &self,
-        openid: String,
-        access_token: String,
-    ) -> Result<UserInfoResponse, Box<dyn Error>> {
-        self.wechat_type.get_user_info(openid, access_token).await
+    pub async fn get_user_info(&self, openid: String) -> Result<UserInfoResponse, Box<dyn Error>> {
+        self.wechat_type.get_user_info(openid).await
     }
 }

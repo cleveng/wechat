@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
+        "deadpool",
         "reqwest",
+        "serde",
         "snsapi",
         "unionid"
     ]
