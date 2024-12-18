@@ -2,29 +2,29 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct AccessTokenResponse {
-    access_token: String,
-    expires_in: u64,
-    refresh_token: String,
-    openid: String,
-    scope: String,
-    unionid: Option<String>,
+    pub access_token: String,
+    pub expires_in: u64,
+    pub refresh_token: String,
+    pub openid: String,
+    pub scope: String,
+    pub unionid: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct AuthResponse {
-    errcode: i64,
-    errmsg: String,
+    pub errcode: i64,
+    pub errmsg: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UserInfoResponse {
-    openid: String,
-    nickname: String,
-    sex: i64,
-    province: String,
-    city: String,
-    country: String,
-    headimgurl: String,
-    privilege: Vec<String>,
-    unionid: Option<String>,
+    pub openid: String,
+    pub nickname: String,
+    pub sex: i64,
+    pub province: String,
+    pub city: String,
+    pub country: String,
+    pub headimgurl: String,
+    pub privilege: Vec<String>,
+    pub unionid: Option<String>,
 }

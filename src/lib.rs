@@ -65,4 +65,12 @@ impl<T: WechatType> Wechat<T> {
             .check_access_token(openid, access_token)
             .await
     }
+
+    pub async fn get_user_info(
+        &self,
+        openid: String,
+        access_token: String,
+    ) -> Result<UserInfoResponse, Box<dyn Error>> {
+        self.wechat_type.get_user_info(openid, access_token).await
+    }
 }
