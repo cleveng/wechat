@@ -2,10 +2,8 @@ pub mod model;
 pub mod open_platform;
 
 use async_trait::async_trait;
-use deadpool_redis::Connection;
 use model::{AccessTokenResponse, AuthResponse, UserInfoResponse};
 use std::error::Error;
-use std::sync::{Arc, Mutex};
 
 #[async_trait]
 pub trait WechatType {
