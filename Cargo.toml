@@ -1,0 +1,28 @@
+[package]
+name = "wechat"
+version = "1.0.0"
+description = "Wechat SDK for Rust"
+authors = ["cleveng <cleveng@gmail.com>"]
+edition = "2021"
+repository = ""
+rust-version = "1.60.0"
+
+[dependencies]
+log = "0.4.22"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
+url = "2.5.4"
+reqwest = { version = "0.12.8", features = ["json"] }
+async-trait = "0.1.83"
+
+[build-dependencies]
+
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
