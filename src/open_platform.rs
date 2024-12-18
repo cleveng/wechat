@@ -23,12 +23,13 @@ impl WechatType for OpenPlatform {
     fn get_redirect_url(&self, redirect_uri: String, state: Option<String>) -> String {
         let mut url = Url::parse("https://open.weixin.qq.com/connect/qrconnect").unwrap();
 
+        let _state = state.unwrap_or("".to_string());
         let query = form_urlencoded::Serializer::new(String::new())
             .append_pair("appid", self.appid.as_ref())
             .append_pair("redirect_uri", &redirect_uri)
             .append_pair("response_type", "code")
             .append_pair("scope", "snsapi_login")
-            .append_pair("state", &state.unwrap())
+            .append_pair("state", &_state)
             .append_pair("lang", "")
             .finish();
 
