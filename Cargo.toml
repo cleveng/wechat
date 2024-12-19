@@ -1,10 +1,11 @@
 [package]
-name = "wechat"
+name = "async-wechat"
 version = "1.0.0"
 description = "Wechat SDK for Rust"
 authors = ["cleveng <cleveng@gmail.com>"]
+license = "MIT"
 edition = "2021"
-repository = ""
+repository = "https://github.com/cleveng/wechat.git"
 rust-version = "1.60.0"
 
 [dependencies]
