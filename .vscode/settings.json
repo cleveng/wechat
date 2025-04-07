@@ -4,6 +4,7 @@
         "reqwest",
         "serde",
         "snsapi",
-        "unionid"
+        "unionid",
+        "userinfo"
     ]
 }
