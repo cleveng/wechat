@@ -1,10 +1,12 @@
 {
     "cSpell.words": [
         "deadpool",
+        "dotenv",
         "reqwest",
         "serde",
         "snsapi",
         "unionid",
+        "urlencoding",
         "userinfo"
     ]
 }
