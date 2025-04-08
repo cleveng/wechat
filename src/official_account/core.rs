@@ -1,7 +1,6 @@
 use crate::OfficialAccount;
 
 use deadpool_redis::redis::cmd;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use url::{Url, form_urlencoded};
 
@@ -70,7 +69,7 @@ pub struct AccessTokenResponse {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct AuthResponse {
+pub struct BasicResponse {
     pub errcode: i64,
     pub errmsg: String,
 }
@@ -143,8 +142,7 @@ impl OfficialAccount {
 
         println!("url: {}", url);
 
-        let client = Client::new();
-        let response = client.get(&url).send().await?;
+        let response = self.client.get(&url).send().await?;
         let at: AccessTokenResponse = response.json::<AccessTokenResponse>().await?;
 
         let mut rdb = self.rdb_pool.get().await.unwrap();
@@ -200,8 +198,7 @@ impl OfficialAccount {
             access_token, openid
         );
 
-        let client = Client::new();
-        let response = client.get(&url).send().await?;
+        let response = self.client.get(&url).send().await?;
         let status = response.status();
 
         // 检查 HTTP 响应状态码
@@ -211,7 +208,7 @@ impl OfficialAccount {
 
         // 处理微信 API 响应
         let response_text = response.text().await?;
-        if let Ok(api_error) = serde_json::from_str::<AuthResponse>(&response_text) {
+        if let Ok(api_error) = serde_json::from_str::<BasicResponse>(&response_text) {
             return Err(format!(
                 "Wechat API error: code={}, message={}",
                 api_error.errcode, api_error.errmsg
