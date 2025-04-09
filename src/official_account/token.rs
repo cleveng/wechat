@@ -44,8 +44,8 @@ impl OfficialAccount {
 
         let mut url = Url::parse(TOKEN_URL).unwrap();
         let query = form_urlencoded::Serializer::new(String::new())
-            .append_pair("appid", &self.appid)
-            .append_pair("secret", &self.app_secret)
+            .append_pair("appid", &self.config.appid)
+            .append_pair("secret", &self.config.app_secret)
             .append_pair("grant_type", "client_credential")
             .finish();
 

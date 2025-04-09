@@ -11,8 +11,7 @@ mod tests {
     use uuid::Uuid;
 
     use crate::{
-        OfficialAccount,
-        official_account::qrcode::{self, TicketRequest},
+        official_account::qrcode::{self, TicketRequest}, Config, OfficialAccount
     };
     use std::env;
 
@@ -20,11 +19,17 @@ mod tests {
     async fn get_qr_ticket() {
         dotenv::dotenv().ok();
 
-        let appid = env::var("APPID").expect("appid not set");
-        let app_secret = env::var("APP_SECRET").expect("app secret not set");
-        let cfg = env::var("REDIS_URL").expect("redis url not set");
+        let appid = env::var("APPID").expect("APPID not set");
+        let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
+        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
 
-        let account = OfficialAccount::new(appid, app_secret, cfg);
+        let config = Config {
+            appid: appid.clone(),
+            app_secret: app_secret.clone(),
+            token: "wechat".to_string(),
+            encoding_aes_key: None,
+        };
+        let account = OfficialAccount::new(config, redis_url);
 
         let key = format!("login:{}", Uuid::new_v4().to_string());
 

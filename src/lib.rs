@@ -1,16 +1,22 @@
 pub mod constants;
 pub mod official_account;
 
-use deadpool_redis::{Config, Pool, Runtime};
+use deadpool_redis::{Pool, Runtime};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 pub struct OfficialAccount {
-    appid: String,
-    app_secret: String,
+    config: Config,
     rdb_pool: Arc<Pool>,
     client: Client,
+}
+
+pub struct Config {
+    pub appid: String,
+    pub app_secret: String,
+    pub token: String,
+    pub encoding_aes_key: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -31,8 +37,8 @@ impl OfficialAccount {
     /// # Returns
     ///
     /// A new instance of the OfficialAccount struct.
-    pub fn new(appid: String, app_secret: String, cfg: String) -> Self {
-        let pool_config = Config::from_url(cfg);
+    pub fn new(conf: Config, redis_url: String) -> Self {
+        let pool_config = deadpool_redis::Config::from_url(redis_url);
 
         let rdb_pool = match pool_config.create_pool(Some(Runtime::Tokio1)) {
             Ok(pool) => Arc::new(pool),
@@ -42,8 +48,7 @@ impl OfficialAccount {
         };
 
         OfficialAccount {
-            appid,
-            app_secret,
+            config: conf,
             rdb_pool,
             client: Client::new(),
         }

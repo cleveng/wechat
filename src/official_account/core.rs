@@ -8,7 +8,7 @@ use url::{Url, form_urlencoded};
 mod tests {
     use std::env;
 
-    use crate::OfficialAccount;
+    use crate::{Config, OfficialAccount};
 
     #[test]
     fn get_redirect_url() {
@@ -16,29 +16,41 @@ mod tests {
 
         let appid = env::var("APPID").expect("APPID not set");
         let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let cfg = env::var("REDIS_URL").expect("APP_CFG not set");
-
+        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
         let redirect_uri = env::var("REDIRECT_URI").expect("REDIRECT_URI not set");
 
-        let account = OfficialAccount::new(appid, app_secret, cfg);
+        let config = Config {
+            appid: appid.clone(),
+            app_secret: app_secret.clone(),
+            token: "wechat".to_string(),
+            encoding_aes_key: None,
+        };
+        let account = OfficialAccount::new(config, redis_url);
+
         let url = account.get_redirect_url(redirect_uri, None);
         println!("url: {:#?}", url);
     }
 
     #[tokio::test]
-    async fn get_access_token() {
+    async fn get_oauth2_token() {
         dotenv::dotenv().ok();
 
         let appid = env::var("APPID").expect("APPID not set");
         let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let cfg = env::var("REDIS_URL").expect("APP_CFG not set");
+        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
 
-        let account = OfficialAccount::new(appid, app_secret, cfg);
+        let config = Config {
+            appid: appid.clone(),
+            app_secret: app_secret.clone(),
+            token: "wechat".to_string(),
+            encoding_aes_key: None,
+        };
+        let account = OfficialAccount::new(config, redis_url);
         let at = account
-            .get_access_token("011OrEIa1C5KpJ0slBGa1i73tY3OrEI2".to_string())
+            .get_oauth2_token("011OrEIa1C5KpJ0slBGa1i73tY3OrEI2".to_string())
             .await;
 
-        println!("get_access_token: {:#?}", at.unwrap());
+        println!("get_oauth2_token: {:#?}", at.unwrap());
     }
 
     #[tokio::test]
@@ -47,14 +59,20 @@ mod tests {
 
         let appid = env::var("APPID").expect("APPID not set");
         let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let cfg = env::var("REDIS_URL").expect("APP_CFG not set");
+        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
 
-        let account = OfficialAccount::new(appid, app_secret, cfg);
+        let config = Config {
+            appid: appid.clone(),
+            app_secret: app_secret.clone(),
+            token: "wechat".to_string(),
+            encoding_aes_key: None,
+        };
+        let account = OfficialAccount::new(config, redis_url);
         let at = account
             .get_userinfo("oVwE26e3c3jS8M63WeRgKHZX-z7Y".to_string())
             .await;
 
-        println!("get_access_token: {:#?}", at.unwrap());
+        println!("get_oauth2_token: {:#?}", at.unwrap());
     }
 }
 
@@ -88,7 +106,7 @@ pub struct UserInfoResponse {
 }
 
 impl OfficialAccount {
-    /// [Generates a URL that can be used to redirect the user to the WeChat authorization page.](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html)
+    /// [Generates a URL that can be used to redirect the user to the WeChat authorization page.](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/get_oauth2_token.html)
     ///
     ///
     /// The user will be redirected to the `redirect_uri` after authorization.
@@ -101,7 +119,7 @@ impl OfficialAccount {
     pub fn get_redirect_url(&self, redirect_uri: String, state: Option<String>) -> String {
         let mut url = Url::parse("https://open.weixin.qq.com/connect/oauth2/authorize").unwrap();
         let query = form_urlencoded::Serializer::new(String::new())
-            .append_pair("appid", &self.appid)
+            .append_pair("appid", &self.config.appid)
             .append_pair("redirect_uri", &redirect_uri)
             .append_pair("response_type", "code")
             .append_pair("scope", "snsapi_base")
@@ -112,7 +130,7 @@ impl OfficialAccount {
         format!("{}#wechat_redirect", url.to_string())
     }
 
-    /// [Exchanges the given authorization code for an access token using the WeChat API](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html)
+    /// [Exchanges the given authorization code for an access token using the WeChat API](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/get_oauth2_token.html)
     ///
     /// This function constructs a request to the WeChat OAuth2 API endpoint with the
     /// provided authorization code, app ID, and app secret, and processes the response
@@ -131,13 +149,13 @@ impl OfficialAccount {
     ///
     /// * Returns an error if the HTTP request fails or returns a non-success status, or if
     ///   the response cannot be deserialized into an `AccessTokenResponse`.
-    pub async fn get_access_token(
+    pub async fn get_oauth2_token(
         &self,
         code: String,
     ) -> Result<AccessTokenResponse, Box<dyn std::error::Error>> {
         let url = format!(
             "https://api.weixin.qq.com/sns/oauth2/access_token?appid={}&secret={}&code={}&grant_type=authorization_code",
-            self.appid, self.app_secret, code
+            self.config.appid, self.config.app_secret, code
         );
 
         println!("url: {}", url);

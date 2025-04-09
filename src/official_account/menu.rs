@@ -8,7 +8,7 @@ const DELETE_MENU_URL: &str = "https://api.weixin.qq.com/cgi-bin/menu/delete?acc
 mod tests {
     use std::env;
 
-    use crate::OfficialAccount;
+    use crate::{Config, OfficialAccount};
 
     #[tokio::test]
     async fn delete_menu() {
@@ -16,9 +16,15 @@ mod tests {
 
         let appid = env::var("APPID").expect("APPID not set");
         let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let cfg = env::var("REDIS_URL").expect("APP_CFG not set");
+        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
 
-        let account = OfficialAccount::new(appid, app_secret, cfg);
+        let config = Config {
+            appid: appid.clone(),
+            app_secret: app_secret.clone(),
+            token: "wechat".to_string(),
+            encoding_aes_key: None,
+        };
+        let account = OfficialAccount::new(config, redis_url);
         let result = account.delete_menu().await;
         println!("url: {:#?}", result);
     }
