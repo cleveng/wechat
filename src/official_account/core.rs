@@ -39,9 +39,11 @@ pub struct AccessTokenResponse {
     access_token: String,
     expires_in: u64,
     refresh_token: String,
-    pub openid: String,
+    #[serde(rename = "openid")]
+    pub open_id: String,
     scope: String,
-    pub unionid: Option<String>,
+    #[serde(rename = "unionid")]
+    pub union_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,15 +54,18 @@ pub struct BasicResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct UserInfoResponse {
-    pub openid: String,
-    pub nickname: String,
-    pub sex: i64,
-    pub province: String,
-    pub city: String,
-    pub country: String,
-    pub headimgurl: String,
-    pub privilege: Vec<String>,
-    pub unionid: Option<String>,
+    #[serde(rename = "openid")]
+    pub open_id: String,
+    pub nickname: Option<String>,
+    pub sex: Option<i64>,
+    pub province: Option<String>,
+    pub city: Option<String>,
+    pub country: Option<String>,
+    #[serde(rename = "headimgurl")]
+    pub profile_url: Option<String>,
+    pub privilege: Option<Vec<String>>,
+    #[serde(rename = "unionid")]
+    pub union_id: Option<String>,
 }
 
 impl OfficialAccount {
@@ -119,7 +124,7 @@ impl OfficialAccount {
 
         let mut rdb = self.rdb_pool.get().await.unwrap();
         cmd("SETEX")
-            .arg(&at.openid)
+            .arg(&at.open_id)
             .arg(24 * 60)
             .arg(serde_json::to_string(&at).unwrap())
             .query_async::<()>(&mut rdb)
