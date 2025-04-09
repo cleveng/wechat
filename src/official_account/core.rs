@@ -4,6 +4,8 @@ use deadpool_redis::redis::cmd;
 use serde::{Deserialize, Serialize};
 use url::{Url, form_urlencoded};
 
+const OAUTH2_URL: &str = "https://open.weixin.qq.com/connect/oauth2/authorize";
+
 #[cfg(test)]
 mod tests {
     use std::env;
@@ -27,7 +29,7 @@ mod tests {
         };
         let account = OfficialAccount::new(config, redis_url);
 
-        let url = account.get_redirect_url(redirect_uri, None);
+        let url = account.get_redirect_url(redirect_uri, "snsapi_userinfo".to_string(), None);
         println!("url: {:#?}", url);
     }
 }
@@ -62,24 +64,20 @@ pub struct UserInfoResponse {
 }
 
 impl OfficialAccount {
-    /// [Generates a URL that can be used to redirect the user to the WeChat authorization page.](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/get_oauth2_token.html)
-    ///
-    ///
-    /// The user will be redirected to the `redirect_uri` after authorization.
-    /// The `state` parameter is optional and can be used to store
-    /// arbitrary data that will be passed back to your application after
-    /// authorization.
-    ///
-    /// # Examples
-    ///
-    pub fn get_redirect_url(&self, redirect_uri: String, state: Option<String>) -> String {
-        let mut url = Url::parse("https://open.weixin.qq.com/connect/oauth2/authorize").unwrap();
+    /// [获取跳转的url地址](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html)
+    pub fn get_redirect_url(
+        &self,
+        redirect_uri: String,
+        scope: String,
+        state: Option<String>,
+    ) -> String {
+        let mut url = Url::parse(OAUTH2_URL).unwrap();
         let query = form_urlencoded::Serializer::new(String::new())
             .append_pair("appid", &self.config.appid)
             .append_pair("redirect_uri", &redirect_uri)
             .append_pair("response_type", "code")
-            .append_pair("scope", "snsapi_base")
-            .append_pair("state", state.unwrap_or("".to_string()).as_ref())
+            .append_pair("scope", &scope)
+            .append_pair("state", state.as_deref().unwrap_or(""))
             .finish();
 
         url.set_query(Some(&query));
