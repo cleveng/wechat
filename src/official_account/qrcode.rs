@@ -1,3 +1,5 @@
+use std::{any::TypeId, str::FromStr};
+
 use crate::OfficialAccount;
 
 use serde::{Deserialize, Serialize};
@@ -11,7 +13,8 @@ mod tests {
     use uuid::Uuid;
 
     use crate::{
-        official_account::qrcode::{self, TicketRequest}, Config, OfficialAccount
+        Config, OfficialAccount,
+        official_account::qrcode::{self, TicketRequest},
     };
     use std::env;
 
@@ -82,9 +85,9 @@ pub struct TicketScene {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TicketRequest {
-    expire_seconds: u64,
-    action_name: TicketActionName,
-    action_info: TicketActionInfo,
+    pub expire_seconds: u64,
+    pub action_name: TicketActionName,
+    pub action_info: TicketActionInfo,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -92,6 +95,42 @@ pub struct TicketResponse {
     pub ticket: String,
     pub expire_seconds: u64,
     pub url: String,
+}
+
+pub fn build_tmp_qr_request<T>(exp: u64, scene: T) -> TicketRequest
+where
+    T: 'static + ToString + FromStr,
+    <T as FromStr>::Err: std::fmt::Debug,
+{
+    let type_id = TypeId::of::<T>();
+    let mut ticket_scene = TicketScene {
+        scene_id: None,
+        scene_str: None,
+    };
+
+    let action_name;
+
+    if type_id == TypeId::of::<String>() || type_id == TypeId::of::<&str>() {
+        action_name = TicketActionName::QR_STR_SCENE;
+        ticket_scene.scene_str = Some(scene.to_string());
+    } else {
+        action_name = TicketActionName::QR_SCENE;
+        let parsed_id = scene
+            .to_string()
+            .parse::<u32>()
+            .expect("scene parse failed");
+        ticket_scene.scene_id = Some(parsed_id);
+    }
+
+    let expire_seconds = exp.clamp(60, 2592000);
+
+    TicketRequest {
+        expire_seconds,
+        action_name,
+        action_info: TicketActionInfo {
+            scene: ticket_scene,
+        },
+    }
 }
 
 impl TicketResponse {
