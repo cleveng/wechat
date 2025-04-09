@@ -30,50 +30,6 @@ mod tests {
         let url = account.get_redirect_url(redirect_uri, None);
         println!("url: {:#?}", url);
     }
-
-    #[tokio::test]
-    async fn get_oauth2_token() {
-        dotenv::dotenv().ok();
-
-        let appid = env::var("APPID").expect("APPID not set");
-        let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
-
-        let config = Config {
-            appid: appid.clone(),
-            app_secret: app_secret.clone(),
-            token: "wechat".to_string(),
-            encoding_aes_key: None,
-        };
-        let account = OfficialAccount::new(config, redis_url);
-        let at = account
-            .get_oauth2_token("011OrEIa1C5KpJ0slBGa1i73tY3OrEI2".to_string())
-            .await;
-
-        println!("get_oauth2_token: {:#?}", at.unwrap());
-    }
-
-    #[tokio::test]
-    async fn get_userinfo() {
-        dotenv::dotenv().ok();
-
-        let appid = env::var("APPID").expect("APPID not set");
-        let app_secret = env::var("APP_SECRET").expect("APP_SECRET not set");
-        let redis_url = env::var("REDIS_URL").expect("REDIS_URL not set");
-
-        let config = Config {
-            appid: appid.clone(),
-            app_secret: app_secret.clone(),
-            token: "wechat".to_string(),
-            encoding_aes_key: None,
-        };
-        let account = OfficialAccount::new(config, redis_url);
-        let at = account
-            .get_userinfo("oVwE26e3c3jS8M63WeRgKHZX-z7Y".to_string())
-            .await;
-
-        println!("get_oauth2_token: {:#?}", at.unwrap());
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
