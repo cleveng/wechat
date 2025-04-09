@@ -1,54 +1,56 @@
-pub mod model;
-pub mod open_platform;
+pub mod constants;
+pub mod official_account;
 
-use async_trait::async_trait;
-use model::{AccessTokenResponse, AuthResponse, UserInfoResponse};
-use std::error::Error;
+use deadpool_redis::{Pool, Runtime};
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
-#[async_trait]
-pub trait WechatType {
-    fn get_redirect_url(&self, redirect_uri: String, state: Option<String>) -> String;
-    async fn get_access_token(&self, code: String) -> Result<AccessTokenResponse, Box<dyn Error>>;
-    async fn refresh_access_token(
-        &self,
-        appid: String,
-    ) -> Result<AccessTokenResponse, Box<dyn Error>>;
-    async fn check_access_token(&self, openid: String) -> Result<AuthResponse, Box<dyn Error>>;
-    async fn get_user_info(&self, openid: String) -> Result<UserInfoResponse, Box<dyn Error>>;
+pub struct OfficialAccount {
+    config: Config,
+    rdb_pool: Arc<Pool>,
+    client: Client,
 }
 
-pub struct Wechat<T: WechatType> {
-    wechat_type: T,
+pub struct Config {
+    pub appid: String,
+    pub app_secret: String,
+    pub token: String,
+    pub encoding_aes_key: Option<String>,
 }
 
-impl<T: WechatType> Wechat<T> {
-    pub fn new(wechat_type: T) -> Self {
-        Wechat { wechat_type }
-    }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TokenResponse {
+    pub access_token: String,
+    expires_in: u64,
+}
 
-    pub fn get_redirect_url(&self, redirect_uri: String, state: Option<String>) -> String {
-        self.wechat_type.get_redirect_url(redirect_uri, state)
-    }
+impl OfficialAccount {
+    /// Creates a new instance of the OfficialAccount struct.
+    ///
+    /// # Arguments
+    ///
+    /// * `appid` - The appid of the WeChat application.
+    /// * `app_secret` - The app secret of the WeChat application.
+    /// * `cfg` - The URL of the Redis database connection string.
+    ///
+    /// # Returns
+    ///
+    /// A new instance of the OfficialAccount struct.
+    pub fn new(conf: Config, redis_url: String) -> Self {
+        let pool_config = deadpool_redis::Config::from_url(redis_url);
 
-    pub async fn get_access_token(
-        &self,
-        code: String,
-    ) -> Result<AccessTokenResponse, Box<dyn Error>> {
-        self.wechat_type.get_access_token(code).await
-    }
+        let rdb_pool = match pool_config.create_pool(Some(Runtime::Tokio1)) {
+            Ok(pool) => Arc::new(pool),
+            Err(err) => {
+                panic!("Failed to create Redis pool: {}", err);
+            }
+        };
 
-    pub async fn refresh_access_token(
-        &self,
-        appid: String,
-    ) -> Result<AccessTokenResponse, Box<dyn Error>> {
-        self.wechat_type.refresh_access_token(appid).await
-    }
-
-    pub async fn check_access_token(&self, openid: String) -> Result<AuthResponse, Box<dyn Error>> {
-        self.wechat_type.check_access_token(openid).await
-    }
-
-    pub async fn get_user_info(&self, openid: String) -> Result<UserInfoResponse, Box<dyn Error>> {
-        self.wechat_type.get_user_info(openid).await
+        OfficialAccount {
+            config: conf,
+            rdb_pool,
+            client: Client::new(),
+        }
     }
 }
