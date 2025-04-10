@@ -1,9 +1,15 @@
 {
     "cSpell.words": [
+        "actix",
+        "chrono",
         "deadpool",
         "dotenv",
+        "echostr",
+        "MINIPROGRAMPAGE",
+        "qrscene",
         "reqwest",
         "serde",
+        "SHORTVIDEO",
         "snsapi",
         "unionid",
         "urlencoding",
