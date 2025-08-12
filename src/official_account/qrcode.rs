@@ -20,6 +20,7 @@ mod tests {
     use std::env;
 
     #[tokio::test]
+    #[ignore]
     async fn get_qr_ticket() {
         dotenv::dotenv().ok();
 
