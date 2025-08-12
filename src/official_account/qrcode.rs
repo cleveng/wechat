@@ -5,8 +5,9 @@ use crate::OfficialAccount;
 use serde::{Deserialize, Serialize};
 use urlencoding::encode;
 
-const QR_CREATE_URL: &str = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=";
-const QR_IMG_URL: &str = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=";
+pub(crate) const QR_CREATE_URL: &str =
+    "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=";
+pub(crate) const QR_IMG_URL: &str = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=";
 
 #[cfg(test)]
 mod tests {
@@ -42,7 +43,7 @@ mod tests {
         };
         let params = TicketRequest {
             expire_seconds: 200000,
-            action_name: qrcode::TicketActionName::QR_STR_SCENE,
+            action_name: qrcode::TicketActionName::QrStrScene,
             action_info: qrcode::TicketActionInfo { scene },
         };
 
@@ -53,19 +54,19 @@ mod tests {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum TicketActionName {
-    QR_SCENE,
-    QR_STR_SCENE,
-    QR_LIMIT_SCENE,
-    QR_LIMIT_STR_SCENE,
+    QrScene,
+    QrStrScene,
+    QrLimitScene,
+    QrLimitStrScene,
 }
 
 impl TicketActionName {
     pub fn as_str(&self) -> &'static str {
         match self {
-            TicketActionName::QR_SCENE => "QR_SCENE",
-            TicketActionName::QR_STR_SCENE => "QR_STR_SCENE",
-            TicketActionName::QR_LIMIT_SCENE => "QR_LIMIT_SCENE",
-            TicketActionName::QR_LIMIT_STR_SCENE => "QR_LIMIT_STR_SCENE",
+            TicketActionName::QrScene => "QR_SCENE",
+            TicketActionName::QrStrScene => "QR_STR_SCENE",
+            TicketActionName::QrLimitScene => "QR_LIMIT_SCENE",
+            TicketActionName::QrLimitStrScene => "QR_LIMIT_STR_SCENE",
         }
     }
 }
@@ -111,10 +112,10 @@ where
     let action_name;
 
     if type_id == TypeId::of::<String>() || type_id == TypeId::of::<&str>() {
-        action_name = TicketActionName::QR_STR_SCENE;
+        action_name = TicketActionName::QrStrScene;
         ticket_scene.scene_str = Some(scene.to_string());
     } else {
-        action_name = TicketActionName::QR_SCENE;
+        action_name = TicketActionName::QrScene;
         let parsed_id = scene
             .to_string()
             .parse::<u32>()

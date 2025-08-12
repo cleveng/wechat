@@ -4,7 +4,7 @@ use deadpool_redis::redis::cmd;
 use serde::{Deserialize, Serialize};
 use url::{Url, form_urlencoded};
 
-const OAUTH2_URL: &str = "https://open.weixin.qq.com/connect/oauth2/authorize";
+pub(crate) const OAUTH2_URL: &str = "https://open.weixin.qq.com/connect/oauth2/authorize";
 
 #[cfg(test)]
 mod tests {

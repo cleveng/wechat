@@ -4,7 +4,7 @@ use crate::OfficialAccount;
 
 use super::core::BasicResponse;
 
-const CLEAR_QUOTA_URL: &str = "https://api.weixin.qq.com/cgi-bin/clear_quota?access_token=";
+pub(crate) const CLEAR_QUOTA_URL: &str = "https://api.weixin.qq.com/cgi-bin/clear_quota?access_token=";
 
 #[cfg(test)]
 mod tests {

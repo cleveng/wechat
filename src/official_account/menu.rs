@@ -2,7 +2,7 @@ use crate::OfficialAccount;
 
 use super::core::BasicResponse;
 
-const DELETE_MENU_URL: &str = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=";
+pub(crate) const DELETE_MENU_URL: &str = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=";
 
 #[cfg(test)]
 mod tests {

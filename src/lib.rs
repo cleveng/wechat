@@ -1,4 +1,4 @@
-pub mod constants;
+mod constants;
 pub mod official_account;
 
 use deadpool_redis::{Pool, Runtime};

@@ -5,7 +5,7 @@ use url::{Url, form_urlencoded};
 use crate::OfficialAccount;
 use crate::constants::keys;
 
-const TOKEN_URL: &str = "https://api.weixin.qq.com/cgi-bin/token";
+pub(crate) const TOKEN_URL: &str = "https://api.weixin.qq.com/cgi-bin/token";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenResponse {
