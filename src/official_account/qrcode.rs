@@ -53,23 +53,13 @@ mod tests {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TicketActionName {
-    QrScene,
+    QrScene, // => QR_SCENE
     QrStrScene,
     QrLimitScene,
     QrLimitStrScene,
-}
-
-impl TicketActionName {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            TicketActionName::QrScene => "QR_SCENE",
-            TicketActionName::QrStrScene => "QR_STR_SCENE",
-            TicketActionName::QrLimitScene => "QR_LIMIT_SCENE",
-            TicketActionName::QrLimitStrScene => "QR_LIMIT_STR_SCENE",
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -164,6 +154,7 @@ impl OfficialAccount {
         &self,
         req: TicketRequest,
     ) -> Result<TicketResponse, Box<dyn std::error::Error>> {
+        println!("req: {:#?}", &req);
         let token = self.token().await?;
 
         let url = format!("{}{}", QR_CREATE_URL, token);
